@@ -8,6 +8,7 @@ Game::Game( RenderWindow& window) {
     player.set_position();
     player.set_texture(player_texture);
 
+    ball.set_player(player);
     ball.set_window(window);
     ball_texture.loadFromFile("Ball.png");
     ball.set_position();
@@ -35,6 +36,8 @@ void Game::move_player(Keyboard::Key key) {
 }
 
 void Game::move_objects() {
+    player.update_state();
+    ball.update_state();
     ball.move();
 }
 
