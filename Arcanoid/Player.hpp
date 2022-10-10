@@ -16,10 +16,16 @@ public:
 	Sprite sprite;
 
 	//Player(double velocity, double size, RenderWindow& window, Texture& texture);
-	Player(double velocity);
+	Player(float velocity);
+	~Player() = default;
+
+	// Отрисовка 
 	void set_texture(Texture& texture);
 	void set_position(RenderWindow& window);
-	~Player() = default;
 	void draw(RenderWindow& window);
+
+	// Движение
+	void move_left();
+	void move_right();
 
 };

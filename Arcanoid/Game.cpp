@@ -12,11 +12,19 @@ void Game::draw() {
     player.draw(*parent);
 }
 
+void Game::move_player(Keyboard::Key key) {
+    switch (key){
+    case Keyboard::Left:
+        player.move_left();
+        break;
+    case Keyboard::Right:
+        player.move_right();
+    }
+}
+
 int Game::run_game() {
     RenderWindow window(VideoMode(800, 600), "SFML works!", Style::Default);
     Game game = Game(window);
-    //RectangleShape shape(Vector2f(100, 100));
-    //shape.setFillColor(Color::Green);
 
     while (window.isOpen())
     {
@@ -25,10 +33,12 @@ int Game::run_game() {
         {
             if (event.type == Event::Closed)
                 window.close();
+            if (event.type == Event::KeyPressed) {
+                game.move_player(event.key.code);
+            }
         }
 
         window.clear();
-        //window.draw(shape);
         game.draw();
         window.display();
     }

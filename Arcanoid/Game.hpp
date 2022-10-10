@@ -1,7 +1,7 @@
 #pragma once
 #include"Player.hpp"
 
-#define player_velocity 5.f
+#define player_velocity 12.f
 
 class Game {
 public:
@@ -11,6 +11,8 @@ public:
 	Texture player_texture;
 	
 	Game( RenderWindow& window);
+
+	void move_player(Keyboard::Key key);
 	void draw();
 
 	static int run_game();

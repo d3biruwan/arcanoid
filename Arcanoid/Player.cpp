@@ -1,6 +1,6 @@
 #include "Player.hpp"
 
-Player::Player(double velocity) {
+Player::Player(float velocity) {
 	this->velocity = velocity;
 	//this->size = size;
 }
@@ -21,4 +21,13 @@ void Player::set_texture(Texture& texture) {
 
 void Player::draw(RenderWindow& window) {
 	window.draw(sprite);
+}
+
+//Движение
+void Player::move_left() {
+	sprite.move(-velocity, 0.f);
+}
+
+void Player::move_right() {
+	sprite.move(velocity, 0.f);
 }
