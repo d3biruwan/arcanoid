@@ -2,10 +2,17 @@
 
 Game::Game( RenderWindow& window) {
     parent = &window;
+
     player.set_window(window);
     player_texture.loadFromFile("player.png");
     player.set_position();
     player.set_texture(player_texture);
+
+    ball.set_window(window);
+    ball_texture.loadFromFile("Ball.png");
+    ball.set_position();
+    ball.set_texture(ball_texture);
+    //ball.set_color()
 }
 
 //Game::~Game() {
@@ -13,6 +20,7 @@ Game::Game( RenderWindow& window) {
 //}
 
 void Game::draw() {
+    ball.draw();
     player.draw();
 }
 
@@ -27,7 +35,7 @@ void Game::move_player(Keyboard::Key key) {
 }
 
 void Game::move_objects() {
-
+    ball.move();
 }
 
 int Game::run_game() {
@@ -36,8 +44,6 @@ int Game::run_game() {
 
     while (window.isOpen())
     {
-        game.move_objects();
-
         Event event;
         while (window.pollEvent(event))
         {
@@ -52,6 +58,7 @@ int Game::run_game() {
         window.clear();
         game.draw();
         window.display();
+        game.move_objects();
     }
 
     return 0;

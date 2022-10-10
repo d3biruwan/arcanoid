@@ -24,7 +24,7 @@ public:
 	void set_texture(Texture& texture);
 	void set_window(RenderWindow& window);
 	virtual	void set_position(double x, double y);
-	void draw();
+	virtual void draw();
 
 	// Движение
 	void move();
