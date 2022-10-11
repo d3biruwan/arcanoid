@@ -2,10 +2,17 @@
 
 #include"Player.hpp"
 #include"Ball.hpp"
+#include"Block.hpp"
 
-#define player_velocity 15.f
-#define ball_velocity 0.4f
+#define player_velocity 1.3f
+#define ball_velocity 0.7f
 #define block_velocity 0.2f
+
+#define rows 5
+#define columns 10
+
+#define border_x 100.f
+#define border_y 50.f
 //#define ball_color Color::Cyan
 
 
@@ -18,11 +25,14 @@ public:
 
 	Ball ball = Ball(ball_velocity);
 	Texture ball_texture;
+
+	list<Block> blocks;
+	Texture block_texture;
 	
 	Game( RenderWindow& window);
 	~Game() = default;
 
-	void move_objects();
+	void update_objects();
 	void move_player(Keyboard::Key key);
 	void draw();
 
