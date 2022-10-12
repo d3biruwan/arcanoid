@@ -9,6 +9,7 @@
 #include <list>
 #include <SFML/Graphics.hpp>
 
+#include"Game.hpp"
 
 
 using namespace sf;
@@ -24,7 +25,10 @@ public:
 	Game_object() = default;
 	Game_object(float, float);
 	~Game_object() = default;
-	void lose_hp();
+	virtual void lose_hp();
+	virtual void on_death() = 0;
+	void set_game(Game&);
+	void set_hp(int);
 
 	// drawing 
 	void set_texture(Texture&);
@@ -32,15 +36,18 @@ public:
 	virtual	void set_position(float, float);
 	void set_color(Color);
 	virtual void draw();
+	void change_opacity();
 
 	// movement
 	virtual void update_state()=0;
 	void move();
 
 	//get properties
-	float get_width();
-	float get_height();
-	Vector2f get_position();
+	const Color& get_color();
+	const int get_hp();	
+	const float get_width();
+	const float get_height();
+	const Vector2f& get_position();
 
 protected:
 	enum screen_collision {
@@ -66,6 +73,7 @@ protected:
 	//changing properties
 	void set_angle(float);
 
+	Game* game;
 	RenderWindow* window = NULL;
 	float velocity=0.f;
 	float angle = 0.f;

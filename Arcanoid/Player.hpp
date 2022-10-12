@@ -3,8 +3,10 @@
 
 class Player : public Game_object {
 public:
+	//lifespan
 	Player(float velocity);
 	~Player()=default;
+	virtual void on_death() {};
 
 	virtual void set_position();
 	virtual void update_state();

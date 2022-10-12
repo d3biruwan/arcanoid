@@ -15,6 +15,31 @@ void Ball::set_blocks(list<Block>& blocks) {
 	this->blocks = &blocks;
 }
 
+void Ball::lose_hp() {
+	hp--;
+	if (get_hp() == 0) {
+		on_death();
+	}
+}
+
+void Ball::on_death() {
+	int counter = 0;
+	Clock clock;
+	while (counter < 5) {
+		float elapsed = clock.getElapsedTime().asSeconds();
+		if (elapsed > 0.5) {
+			change_opacity();
+			window->clear();
+			game->draw();
+			window->display();
+			++counter;
+		}
+	}
+	set_hp(1);
+	set_angle(get_radian_angle(90.f));
+	set_position();
+}
+
 //drawing
 
 void Ball::set_position() {
@@ -41,6 +66,7 @@ void Ball::solve_window_collision(screen_collision state) {
 		return;
 	}
 	if ((state == screen_collision::bottom) || (state == screen_collision::bottom_left) || (state == screen_collision::bottom_right)) {
+		lose_hp();
 		player->lose_hp();
 	}
 	reset_collision();

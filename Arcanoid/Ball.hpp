@@ -12,6 +12,9 @@ public:
 	~Ball() = default;
 	void set_player(Player&);
 	void set_blocks(list<Block>&);
+	virtual void lose_hp();
+	virtual void on_death();
+
 
 	//drawing
 	virtual void set_position();
