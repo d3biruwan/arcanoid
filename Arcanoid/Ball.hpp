@@ -4,6 +4,7 @@
 #include"Block.hpp"
 
 
+
 class Ball : public Game_object {
 public:
 	//lifespan
@@ -32,7 +33,10 @@ protected:
 	void solve_player_collision(bool player_collision_state);
 	rectangle_collision check_block_collision();
 	void solve_blocks_collision(rectangle_collision);
+	void reset_collision();
+	void set_last_collison(rectangle_collision);
 	
+	rectangle_collision last_collison = no;
 	Player* player=NULL;
 	list<Block>* blocks = NULL;
 };

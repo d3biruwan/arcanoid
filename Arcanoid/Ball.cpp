@@ -3,7 +3,7 @@
 //lifespan
 Ball::Ball(float velocity) {
 	this->velocity = velocity;
-	set_angle(get_radian_angle(90.f));
+	set_angle(get_radian_angle(85.f));
 	//angle = get_radian_angle(90.f);
 }
 
@@ -37,9 +37,13 @@ void Ball::update_state() {
 //collisions
 void Ball::solve_window_collision(screen_collision state) {
 	Game_object::solve_window_collision(state);
+	if (state == no) {
+		return;
+	}
 	if ((state == screen_collision::bottom) || (state == screen_collision::bottom_left) || (state == screen_collision::bottom_right)) {
 		player->lose_hp();
 	}
+	reset_collision();
 }
 
 bool Ball::check_player_collision() {
@@ -65,11 +69,12 @@ void Ball::solve_player_collision(bool player_collision_state) {
 	float player_left_bound = player->get_position().x - player_width / 2.0;
 	float ball_position_x = this->get_position().x;
 	
-	this->set_angle(get_radian_angle((ball_position_x - player_left_bound) / player_width * 140.f + 180.f));
-	
+	this->set_angle(get_radian_angle((ball_position_x - player_left_bound) / player_width * 140.f + 200.f));
+	reset_collision();
 }
 
-Ball::rectangle_collision Ball::check_block_collision() {
+Ball::rectangle_collision Ball::check_block_collision()
+{
 	float left_boundary = -get_width() / 2.f + get_position().x;
 	float top_boundary = -get_height() / 2.f + get_position().y;
 	float right_boundary = get_width() / 2.f + get_position().x;
@@ -97,31 +102,86 @@ Ball::rectangle_collision Ball::check_block_collision() {
 				return Ball::rectangle_collision::top;
 			}
 		}
-
+		//top left corner collision
+		if (get_distance_from_point(block_left_boundary, block_top_boundary) <= get_width() / 2.f) {
+			float bottom_dist = distance_between(get_position().x, bottom_boundary, block_left_boundary, block_top_boundary);
+			float right_dist = distance_between(right_boundary, get_position().y, block_left_boundary, block_top_boundary);
+			if (bottom_dist>right_dist) {
+				return Ball::rectangle_collision::left;
+			}
+			else {
+				return Ball::rectangle_collision::top;
+			}
+		}
+		//top right corner collsion
+		if (get_distance_from_point(block_right_boundary, block_top_boundary) <= get_width() / 2.f) {
+			float bottom_dist = distance_between(get_position().x, bottom_boundary, block_right_boundary, block_top_boundary);
+			float left_dist = distance_between(left_boundary, get_position().y, block_right_boundary, block_top_boundary);
+			if (bottom_dist > left_dist) {
+				return Ball::rectangle_collision::right;
+			}
+			else {
+				return Ball::rectangle_collision::top;
+			}
+		}
+		//bottom right collision
+		if (get_distance_from_point(block_right_boundary, block_bottom_boundary) <= get_width() / 2.f) {
+			float top_dist = distance_between(get_position().x, top_boundary, block_right_boundary, block_bottom_boundary);
+			float left_dist = distance_between(left_boundary, get_position().y, block_right_boundary, block_bottom_boundary);
+			if (top_dist > left_dist) {
+				return Ball::rectangle_collision::right;
+			}
+			else {
+				return Ball::rectangle_collision::bottom;
+			}
+		}
+		//bottom left collison
+		if (get_distance_from_point(block_left_boundary, block_bottom_boundary) <= get_width() / 2.f) {
+			float top_dist = distance_between(get_position().x, top_boundary, block_left_boundary, block_bottom_boundary);
+			float right_dist = distance_between(right_boundary, get_position().y, block_left_boundary, block_bottom_boundary);
+			if (top_dist > right_dist) {
+				return Ball::rectangle_collision::left;
+			}
+			else {
+				return Ball::rectangle_collision::bottom;
+			}
+		}
 	}
 	return Ball::rectangle_collision::no;
 }
 
 void Ball::solve_blocks_collision(rectangle_collision state) {
+	if (last_collison == state) {
+		return;
+	}
 	switch (state)
 	{
 	case Ball::no:
-		break;
+		return;
 	case Ball::top:
 		set_angle(2 * M_PI - angle);
 		break;
 	case Ball::right:
-		set_angle(3 * M_PI - angle);
+		set_angle(M_PI - angle);
 		break;
 	case Ball::bottom:
 		set_angle(2 * M_PI - angle);
 		break;
 	case Ball::left:
-		set_angle(3 * M_PI - angle);
+		set_angle(M_PI - angle);
 		break;
 	default:
 		break;
 	}
+	set_last_collison(state);
+}
+
+void Ball::reset_collision() {
+	last_collison = no;
+}
+
+void Ball::set_last_collison(rectangle_collision state) {
+	last_collison = state;
 }
 
 //changing properties

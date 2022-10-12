@@ -97,20 +97,24 @@ void Game_object::solve_window_collision(screen_collision state) {
 	switch (state)
 	{
 	case screen_collision::no:
-		break;
+		return;
 	case top:
+		set_position(get_position().x,get_height()/2.f);
 		set_angle(2 * M_PI - angle);
 		//angle = 2 * M_PI - angle;
 		break;
 	case screen_collision::right:
+		set_position(window->getSize().x - get_width() / 2.f, get_position().y);
 		set_angle(3 * M_PI - angle);
 		//angle = 3 * M_PI - angle;
 		break;
 	case screen_collision::bottom:
+		set_position(get_position().x, window->getSize().y-get_height() / 2.f);
 		set_angle(2 * M_PI - angle);
 		//angle = 2 * M_PI - angle;
 		break;
 	case screen_collision::left:
+		set_position(get_width() / 2.f, get_position().y);
 		set_angle(3 * M_PI - angle);
 		//angle = 3 * M_PI - angle;
 		break;
@@ -134,8 +138,20 @@ float Game_object::get_radian_angle(float angle) {
 	return angle * M_PI / 180.0;
 }
 
+float distance_between(float x_1, float y_1, float x_2, float y_2) {
+	return sqrt(pow(x_1 - x_2, 2.f) + pow(y_1 - y_2, 2.f));
+}
+
+float distance_between(const Vector2f& point_1, const Vector2f& point_2) {
+	return distance_between(point_1.x, point_1.y, point_2.x, point_2.y);
+}
+
 float Game_object::get_distance_from_point(const Vector2f& point) {
-	return sqrt(pow(get_position().x-point.x, 2.f) + pow(get_position().y-point.y,2.f));
+	return distance_between(get_position().x, get_position().y, point.x, point.y);
+}
+
+float Game_object::get_distance_from_point(float x, float y) {
+	return distance_between(get_position().x, get_position().y, x, y);
 }
 
 //changing properties

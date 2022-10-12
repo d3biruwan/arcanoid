@@ -12,6 +12,12 @@ Game::Game( RenderWindow& window) {
     float offset_x = (float)(block_texture.getSize().x);
     float offset_y = (float)(block_texture.getSize().y);
 
+    //Block block = Block();
+    //block.set_window(window);
+    //block.set_position(window.getSize().x / 2.f + 40.f, window.getSize().y / 2.f + 50.f);
+    //block.set_texture(block_texture);
+    //blocks.push_back(block);
+
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < columns; j++) {
             Block block = Block();
