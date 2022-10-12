@@ -28,13 +28,13 @@ public:
 	virtual void lose_hp();
 	virtual void on_death() {};
 	void set_game(Game&);
-	void set_hp(int);
+	virtual void set_hp(int);
 
 	// drawing 
 	void set_texture(Texture&);
 	void set_window(RenderWindow&);
 	virtual	void set_position(float, float);
-	void set_color(Color);
+	void set_color(const Color&);
 	virtual void draw();
 	void change_opacity();
 
