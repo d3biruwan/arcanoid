@@ -8,8 +8,7 @@
 #include <vector>
 #include <list>
 #include <SFML/Graphics.hpp>
-
-#include"Game.hpp"
+//#include"Game.hpp"
 
 
 using namespace sf;
@@ -18,6 +17,7 @@ using namespace std;
 float distance_between(float, float, float, float);
 float distance_between(const Vector2f&, const Vector2f&);
 
+class Game;
 
 class Game_object {
 public:
@@ -26,7 +26,7 @@ public:
 	Game_object(float, float);
 	~Game_object() = default;
 	virtual void lose_hp();
-	virtual void on_death() = 0;
+	virtual void on_death() {};
 	void set_game(Game&);
 	void set_hp(int);
 
@@ -44,7 +44,7 @@ public:
 
 	//get properties
 	const Color& get_color();
-	const int get_hp();	
+	const int get_hp();
 	const float get_width();
 	const float get_height();
 	const Vector2f& get_position();
@@ -73,7 +73,7 @@ protected:
 	//changing properties
 	void set_angle(float);
 
-	Game* game;
+	Game* game=NULL;
 	RenderWindow* window = NULL;
 	float velocity=0.f;
 	float angle = 0.f;

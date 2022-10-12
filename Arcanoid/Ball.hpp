@@ -15,7 +15,6 @@ public:
 	virtual void lose_hp();
 	virtual void on_death();
 
-
 	//drawing
 	virtual void set_position();
 	

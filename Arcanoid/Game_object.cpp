@@ -7,16 +7,16 @@ Game_object::Game_object(float velocity, float angle) {
 	//this->angle = get_radian_angle(angle);
 }
 
-void Game_object::set_game(Game& game) {
-	this->game = &game;
-}
-
 void Game_object::lose_hp() {
 	--hp;
 }
 
 void Game_object::set_hp(int hp) {
 	this->hp = hp;
+}
+
+void Game_object::set_game(Game& game) {
+	this->game = &game;
 }
 
 //drawing

@@ -6,8 +6,9 @@ Player::Player(float velocity) {
 }
 
 void Player::set_position()  {
-	x_pos = window->getSize().x / 2.f;
-	y_pos = 0.9f * window->getSize().y;
+	x_pos = window->getSize().x / 2;
+	y_pos = 0.9 * window->getSize().y;
+	sprite.setPosition(x_pos, y_pos);
 }
 
 
