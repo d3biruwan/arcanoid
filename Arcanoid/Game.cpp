@@ -21,11 +21,13 @@ Game::Game( RenderWindow& window) {
 
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < columns; j++) {
-            Block block = Block();
+            Block block = Block(i*columns+j);
+            block.set_blocks(blocks);
             block.set_window(window);
             block.set_position(border_x + offset_x * (j + 0.5f), border_y + offset_y * (i + 0.5f));
             block.set_texture(block_texture);
             block.set_game(*this);
+            //block.set
             blocks.push_back(block);
         }
     }

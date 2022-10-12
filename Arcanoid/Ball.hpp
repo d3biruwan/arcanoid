@@ -39,6 +39,9 @@ protected:
 	void set_last_collison(rectangle_collision);
 	
 	rectangle_collision last_collison = no;
+
+	Block* collision_block = NULL;
 	Player* player=NULL;
 	list<Block>* blocks = NULL;
+
 };

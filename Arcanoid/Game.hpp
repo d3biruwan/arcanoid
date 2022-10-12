@@ -29,6 +29,7 @@ public:
 
 	list<Block> blocks;
 	Texture block_texture;
+	vector <Color> block_colors{ Color::Red,Color::Yellow,Color(255,255,255,0) };
 	
 	Game( RenderWindow& window);
 	~Game() = default;

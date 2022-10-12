@@ -49,7 +49,7 @@ void Game_object::set_texture(Texture& texture) {
 	sprite.setPosition(x_pos, y_pos);
 }
 
-void Game_object::set_color(Color color) {
+void Game_object::set_color(const Color& color) {
 	sprite.setColor(color);
 }
 
