@@ -1,9 +1,10 @@
 #include"Ball.hpp"
+#include"Game.hpp"
 
 //lifespan
 Ball::Ball(float velocity) {
 	this->velocity = velocity;
-	set_angle(get_radian_angle(85.f));
+	set_angle(get_radian_angle(90.f));
 	//angle = get_radian_angle(90.f);
 }
 
@@ -15,11 +16,40 @@ void Ball::set_blocks(list<Block>& blocks) {
 	this->blocks = &blocks;
 }
 
+void Ball::lose_hp() {
+	hp--;
+	if (get_hp() == 0) {
+		on_death();
+	}
+}
+
+void Ball::on_death() {
+	int counter = 0;
+	Clock clock;
+	while (counter < 4) {
+		float elapsed = clock.getElapsedTime().asSeconds();
+		if (elapsed > 0.5) {
+			change_opacity();
+			window->clear();
+			game->draw();
+			window->display();
+			++counter;
+			clock.restart();
+		}
+	}
+	set_hp(1);
+	set_angle(get_radian_angle(90.f));
+	set_position();
+	player->set_position();
+	//sprite.setPosition(x_pos, y_pos);
+}
+
 //drawing
 
 void Ball::set_position() {
 	x_pos = window->getSize().x / 2.0;
 	y_pos = window->getSize().y / 2.0;
+	sprite.setPosition(x_pos, y_pos);
 }
 
 //movement
@@ -42,6 +72,7 @@ void Ball::solve_window_collision(screen_collision state) {
 	}
 	if ((state == screen_collision::bottom) || (state == screen_collision::bottom_left) || (state == screen_collision::bottom_right)) {
 		player->lose_hp();
+		lose_hp();
 	}
 	reset_collision();
 }

@@ -7,6 +7,7 @@ Game::Game( RenderWindow& window) {
     player_texture.loadFromFile("player.png");
     player.set_position();
     player.set_texture(player_texture);
+    player.set_game(*this);
 
     block_texture.loadFromFile("block.png");
     float offset_x = (float)(block_texture.getSize().x);
@@ -24,6 +25,7 @@ Game::Game( RenderWindow& window) {
             block.set_window(window);
             block.set_position(border_x + offset_x * (j + 0.5f), border_y + offset_y * (i + 0.5f));
             block.set_texture(block_texture);
+            block.set_game(*this);
             blocks.push_back(block);
         }
     }
@@ -34,6 +36,7 @@ Game::Game( RenderWindow& window) {
     ball_texture.loadFromFile("Ball.png");
     ball.set_position();
     ball.set_texture(ball_texture);
+    ball.set_game(*this);
 }
 
 

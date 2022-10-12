@@ -11,7 +11,26 @@ void Game_object::lose_hp() {
 	--hp;
 }
 
+void Game_object::set_hp(int hp) {
+	this->hp = hp;
+}
+
+void Game_object::set_game(Game& game) {
+	this->game = &game;
+}
+
 //drawing
+void Game_object::change_opacity() {
+	Color color = get_color();
+	if (color.a == 255) {
+		color.a = 0;
+	}
+	else {
+		color.a = 255;
+	}
+	set_color(Color(color.r, color.g, color.b, color.a));
+}
+
 void Game_object:: set_window(RenderWindow& window) {
 	this->window = &window;
 }
@@ -45,15 +64,23 @@ void Game_object::move() {
 }
 
 //properties
-float Game_object:: get_width() {
+const Color& Game_object::get_color() {
+	return sprite.getColor();
+}
+
+const int Game_object::get_hp() {
+	return hp;
+}
+
+const float Game_object:: get_width() {
 	return sprite.getLocalBounds().width;
 }
 
-float Game_object::get_height() {
+const float Game_object::get_height() {
 	return sprite.getLocalBounds().height;
 }
 
-Vector2f Game_object::get_position() {
+const Vector2f& Game_object::get_position() {
 	return sprite.getPosition();
 }
 
