@@ -2,19 +2,19 @@
 #include"Game.hpp"
 
 //lifespan
-Ball::Ball(float velocity) {
+Ball::Ball(float velocity,Game& game) {
+	set_game(game);
 	this->velocity = velocity;
 	set_angle(get_radian_angle(90.f));
+	if (this->game->balls.empty() == true) {
+		set_list_position(0);
+	}
+	else {
+		set_list_position((this->game->balls.end() - 1)->get()->get_list_position() + 1);
+	}
 	//angle = get_radian_angle(90.f);
 }
 
-void Ball::set_player(Player& player) {
-	this->player = &player;
-}
-
-void Ball::set_blocks(list<Block>& blocks) {
-	this->blocks = &blocks;
-}
 
 void Ball::lose_hp() {
 	hp--;
@@ -24,36 +24,67 @@ void Ball::lose_hp() {
 }
 
 void Ball::on_death() {
-	int counter = 0;
-	Clock clock;
-	while (counter < 4) {
-		float elapsed = clock.getElapsedTime().asSeconds();
-		if (elapsed > 0.5) {
-			change_opacity();
-			window->clear();
-			game->draw();
-			window->display();
-			++counter;
-			clock.restart();
+	if (game->balls.size() != 1) {
+		for (auto& ball : game->balls) {
+			if (get_list_position() < ball->get_list_position()) {
+				ball->set_list_position(ball->get_list_position() - 1);
+			}
 		}
+		game->balls.erase(game->balls.begin() + get_list_position());
+		return;
 	}
+	flash_animation();
 	set_hp(1);
+	clear_boosts();
 	set_angle(get_radian_angle(90.f));
 	set_position();
-	player->set_position();
-	//sprite.setPosition(x_pos, y_pos);
+	game->player->set_position();
+}
+
+void Ball::clear_boosts() {
+	for (speed_boost& boost : boosts) {
+		decrease_velocity(boost.acceleration);
+	}
+	boosts.clear();
 }
 
 //drawing
 
 void Ball::set_position() {
-	x_pos = window->getSize().x / 2.0;
-	y_pos = window->getSize().y / 2.0;
+	x_pos = game->window->getSize().x / 2.0;
+	y_pos = game->window->getSize().y / 2.0;
 	sprite.setPosition(x_pos, y_pos);
+}
+
+void Ball::flash_animation() {
+	int	counter = 0;
+	Clock clock;
+	clock.restart();
+	while (counter < 4) {
+		float elapsed = clock.getElapsedTime().asSeconds();
+		if (elapsed > 0.5) {
+			
+			game->window->clear();
+			game->draw();
+			game->window->display();
+			change_opacity();
+			++counter;
+			clock.restart();
+		}
+	}
 }
 
 //movement
 void Ball::update_state() {
+	for (auto i = boosts.begin(); i!=boosts.end();) {
+		if (i->timer.getElapsedTime().asSeconds() > 5) {
+			decrease_velocity(i->acceleration);
+			i=boosts.erase(i);
+		}
+		else {
+			i++;
+		}
+	}
 	//Vector2f next_position (get_position().x+ cos(angle) * velocity, get_position().y+ sin(angle) * velocity);
 	//screen collision
 	screen_collision window_collision_state = check_window_collision();
@@ -64,6 +95,12 @@ void Ball::update_state() {
 	solve_blocks_collision(check_block_collision());
 }
 
+//properties
+
+const int Ball::get_list_position() {
+	return list_position;
+}
+
 //collisions
 void Ball::solve_window_collision(screen_collision state) {
 	Game_object::solve_window_collision(state);
@@ -71,16 +108,16 @@ void Ball::solve_window_collision(screen_collision state) {
 		return;
 	}
 	if ((state == screen_collision::bottom) || (state == screen_collision::bottom_left) || (state == screen_collision::bottom_right)) {
-		player->lose_hp();
+		game->player->lose_hp();
 		lose_hp();
 	}
 	reset_collision();
 }
 
 bool Ball::check_player_collision() {
-	float player_width = player->get_width();
-	float player_height = player->get_height();
-	Vector2f player_position = player->get_position();
+	float player_width = game->player->get_width();
+	float player_height = game->player->get_height();
+	Vector2f player_position = game->player->get_position();
 	float radius = this->get_height()/2.f;
 	Vector2f ball_position = this->get_position();
 
@@ -96,8 +133,8 @@ void Ball::solve_player_collision(bool player_collision_state) {
 	if (player_collision_state == false) {
 		return;
 	}
-	float player_width = player->get_width();
-	float player_left_bound = player->get_position().x - player_width / 2.0;
+	float player_width = game->player->get_width();
+	float player_left_bound = game->player->get_position().x - player_width / 2.0;
 	float ball_position_x = this->get_position().x;
 	
 	this->set_angle(get_radian_angle((ball_position_x - player_left_bound) / player_width * 140.f + 200.f));
@@ -112,7 +149,7 @@ Ball::rectangle_collision Ball::check_block_collision()
 	float bottom_boundary = get_height() / 2.f + get_position().y;
 
 
-	for (Block& block : (* blocks)) {
+	for (Block& block : game->blocks) {
 		float block_left_boundary = -block.get_width() / 2.f + block.get_position().x;
 		float block_top_boundary = -block.get_height() / 2.f + block.get_position().y;
 		float block_right_boundary = block.get_width() / 2.f + block.get_position().x;
@@ -217,8 +254,13 @@ void Ball::solve_blocks_collision(rectangle_collision state) {
 		break;
 	}
 	set_last_collison(state);
+	float acceleration = collision_block->get_accelertaion();
+	if (acceleration) {
+		get_speed_boost(acceleration);
+	}
 	collision_block->lose_hp();
 	collision_block = NULL;
+	//game->add_bonus();
 }
 
 void Ball::reset_collision() {
@@ -229,4 +271,18 @@ void Ball::set_last_collison(rectangle_collision state) {
 	last_collison = state;
 }
 
+void Ball::get_speed_boost(float acceleration) {
+	Clock clock;
+	clock.restart();
+	speed_boost boost = { clock, acceleration };
+	boosts.push_back(boost);
+	boost.timer.restart();
+	increase_velocity(acceleration);
+	/*boost.timer.restart();
+	boosts.back().timer.restart();*/
+}
+
 //changing properties
+void Ball::set_list_position(int pos) {
+	list_position = pos;
+}

@@ -1,4 +1,5 @@
 #include"Block.hpp"
+#include"Game.hpp"
 
 //lifespan
 Block::Block(int pos) {
@@ -19,10 +20,6 @@ void Block::set_list_position(int pos) {
 	list_pos = pos;
 }
 
-void Block::set_blocks(list<Block>& blocks) {
-	this->blocks = &blocks;
-}
-
 void Block::lose_hp() {
 	if (!destructible) {
 		return;
@@ -36,21 +33,21 @@ void Block::lose_hp() {
 }
 
 void Block::on_death() {
-	for (Block& block : *blocks) {
+	for (Block& block : game->blocks) {
 		if (get_list_position() < block.get_list_position()) {
 			block.set_list_position(block.get_list_position() - 1);
 		}
 	}
-	auto iter = blocks->begin();
+	auto iter = game->blocks.begin();
 	for (int i = 0; i < get_list_position(); i++, ++iter);
 	auto temp_iter = iter++;
-	blocks->erase(temp_iter);
+	game->blocks.erase(temp_iter);	
 }
 
-//void Block::set_hp(int hp) {
-//	Game_object::set_hp(hp);
-//
-//}
+void Block::make_accelerating(float acceleration, Texture& new_texture) {
+	set_texture(new_texture);
+	this->acceleration = acceleration;
+}
 
 //drawing
 void Block::set_colors_vec(const vector<Color>& vec) {
@@ -58,6 +55,10 @@ void Block::set_colors_vec(const vector<Color>& vec) {
 }
 
 //properties
+const float Block::get_accelertaion() {
+	return acceleration;
+}
+
 const int Block::get_list_position() {
 	return list_pos;
 }
