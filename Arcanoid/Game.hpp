@@ -1,12 +1,12 @@
 #pragma once
 
-
 #include"Player.hpp"
 #include"Ball.hpp"
 #include"Block.hpp"
+#include"Bonus_item.hpp"
 
 #define player_velocity 1.3f
-#define ball_velocity 0.7f
+#define ball_velocity 0.8f
 #define block_velocity 0.2f
 #define block_acceleration 0.1f
 
@@ -24,14 +24,16 @@ public:
 	unique_ptr<Player> player = make_unique<Player>(player_velocity);
 	Texture player_texture;
 
-	//Ball ball = Ball(ball_velocity);
 	Texture ball_texture;
 	vector<unique_ptr<Ball>> balls;
 
-	list<Block> blocks;
+	list<unique_ptr<Block>> blocks;
 	Texture block_texture;
 	Texture accelerating_block_texture;
 	vector <Color> block_colors{ Color::Red,Color::Yellow,Color(255,255,255,0) };
+
+	vector<unique_ptr<Bonus_item>> bonuses;
+	Texture bonus_texture;
 	
 	Game( unique_ptr<RenderWindow> window);
 	~Game() = default;
@@ -42,5 +44,4 @@ public:
 	void draw();
 
 	static int run_game();
-
 };

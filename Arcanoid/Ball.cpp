@@ -5,6 +5,7 @@
 Ball::Ball(float velocity,Game& game) {
 	set_game(game);
 	this->velocity = velocity;
+	
 	set_angle(get_radian_angle(90.f));
 	if (this->game->balls.empty() == true) {
 		set_list_position(0);
@@ -12,7 +13,6 @@ Ball::Ball(float velocity,Game& game) {
 	else {
 		set_list_position((this->game->balls.end() - 1)->get()->get_list_position() + 1);
 	}
-	//angle = get_radian_angle(90.f);
 }
 
 
@@ -30,7 +30,7 @@ void Ball::on_death() {
 				ball->set_list_position(ball->get_list_position() - 1);
 			}
 		}
-		game->balls.erase(game->balls.begin() + get_list_position());
+		game->balls.erase(game->balls.cbegin() + get_list_position());
 		return;
 	}
 	flash_animation();
@@ -76,7 +76,7 @@ void Ball::flash_animation() {
 
 //movement
 void Ball::update_state() {
-	for (auto i = boosts.begin(); i!=boosts.end();) {
+	for (auto i = boosts.cbegin(); i!=boosts.end();) {
 		if (i->timer.getElapsedTime().asSeconds() > 5) {
 			decrease_velocity(i->acceleration);
 			i=boosts.erase(i);
@@ -85,21 +85,20 @@ void Ball::update_state() {
 			i++;
 		}
 	}
-	//Vector2f next_position (get_position().x+ cos(angle) * velocity, get_position().y+ sin(angle) * velocity);
-	//screen collision
 	screen_collision window_collision_state = check_window_collision();
-	solve_window_collision(window_collision_state);
 	//player_collision
 	solve_player_collision(check_player_collision());
 	//blocks collision
 	solve_blocks_collision(check_block_collision());
+	//screen collision
+	solve_window_collision(window_collision_state);
 }
 
 //properties
-
 const int Ball::get_list_position() {
 	return list_position;
 }
+
 
 //collisions
 void Ball::solve_window_collision(screen_collision state) {
@@ -149,28 +148,28 @@ Ball::rectangle_collision Ball::check_block_collision()
 	float bottom_boundary = get_height() / 2.f + get_position().y;
 
 
-	for (Block& block : game->blocks) {
-		float block_left_boundary = -block.get_width() / 2.f + block.get_position().x;
-		float block_top_boundary = -block.get_height() / 2.f + block.get_position().y;
-		float block_right_boundary = block.get_width() / 2.f + block.get_position().x;
-		float block_bottom_boundary = block.get_height() / 2.f + block.get_position().y;
+	for (auto& block : game->blocks) {
+		float block_left_boundary = -block->get_width() / 2.f + block->get_position().x;
+		float block_top_boundary = -block->get_height() / 2.f + block->get_position().y;
+		float block_right_boundary = block->get_width() / 2.f + block->get_position().x;
+		float block_bottom_boundary = block->get_height() / 2.f + block->get_position().y;
 		if ((get_position().y >= block_top_boundary) && (get_position().y <= block_bottom_boundary)) {
 			if ((right_boundary >= block_left_boundary)&&(right_boundary<=block_right_boundary)) {
-				collision_block = &block;
+				collision_block = block.get();
 				return Ball::rectangle_collision::left;
 			}
 			if ((left_boundary<=block_right_boundary)&&(left_boundary>=block_left_boundary)) {
-				collision_block = &block;
+				collision_block = block.get();
 				return Ball::rectangle_collision::right;
 			}
 		}
 		if ((get_position().x >= block_left_boundary) && (get_position().x <= block_right_boundary)) {
 			if ((top_boundary<=block_bottom_boundary)&&(top_boundary>=block_top_boundary)) {
-				collision_block = &block;
+				collision_block = block.get();
 				return Ball::rectangle_collision::bottom;
 			}
 			if ((bottom_boundary>=block_top_boundary)&&(bottom_boundary<=block_bottom_boundary)) {
-				collision_block = &block;
+				collision_block = block.get();
 				return Ball::rectangle_collision::top;
 			}
 		}
@@ -179,11 +178,11 @@ Ball::rectangle_collision Ball::check_block_collision()
 			float bottom_dist = distance_between(get_position().x, bottom_boundary, block_left_boundary, block_top_boundary);
 			float right_dist = distance_between(right_boundary, get_position().y, block_left_boundary, block_top_boundary);
 			if (bottom_dist>right_dist) {
-				collision_block = &block;
+				collision_block = block.get();
 				return Ball::rectangle_collision::left;
 			}
 			else {
-				collision_block = &block;
+				collision_block = block.get();
 				return Ball::rectangle_collision::top;
 			}
 		}
@@ -192,11 +191,11 @@ Ball::rectangle_collision Ball::check_block_collision()
 			float bottom_dist = distance_between(get_position().x, bottom_boundary, block_right_boundary, block_top_boundary);
 			float left_dist = distance_between(left_boundary, get_position().y, block_right_boundary, block_top_boundary);
 			if (bottom_dist > left_dist) {
-				collision_block = &block;
+				collision_block = block.get();
 				return Ball::rectangle_collision::right;
 			}
 			else {
-				collision_block = &block;
+				collision_block = block.get();
 				return Ball::rectangle_collision::top;
 			}
 		}
@@ -205,11 +204,11 @@ Ball::rectangle_collision Ball::check_block_collision()
 			float top_dist = distance_between(get_position().x, top_boundary, block_right_boundary, block_bottom_boundary);
 			float left_dist = distance_between(left_boundary, get_position().y, block_right_boundary, block_bottom_boundary);
 			if (top_dist > left_dist) {
-				collision_block = &block;
+				collision_block = block.get();
 				return Ball::rectangle_collision::right;
 			}
 			else {
-				collision_block = &block;
+				collision_block = block.get();
 				return Ball::rectangle_collision::bottom;
 			}
 		}
@@ -218,11 +217,11 @@ Ball::rectangle_collision Ball::check_block_collision()
 			float top_dist = distance_between(get_position().x, top_boundary, block_left_boundary, block_bottom_boundary);
 			float right_dist = distance_between(right_boundary, get_position().y, block_left_boundary, block_bottom_boundary);
 			if (top_dist > right_dist) {
-				collision_block = &block;
+				collision_block = block.get();
 				return Ball::rectangle_collision::left;
 			}
 			else {
-				collision_block = &block;
+				collision_block = block.get();
 				return Ball::rectangle_collision::bottom;
 			}
 		}
@@ -260,7 +259,6 @@ void Ball::solve_blocks_collision(rectangle_collision state) {
 	}
 	collision_block->lose_hp();
 	collision_block = NULL;
-	//game->add_bonus();
 }
 
 void Ball::reset_collision() {
@@ -278,8 +276,6 @@ void Ball::get_speed_boost(float acceleration) {
 	boosts.push_back(boost);
 	boost.timer.restart();
 	increase_velocity(acceleration);
-	/*boost.timer.restart();
-	boosts.back().timer.restart();*/
 }
 
 //changing properties

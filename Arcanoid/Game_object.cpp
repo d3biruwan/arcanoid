@@ -31,10 +31,6 @@ void Game_object::change_opacity() {
 	set_color(Color(color.r, color.g, color.b, color.a));
 }
 
-//void Game_object:: set_window(RenderWindow& window) {
-//	this->window = &window;
-//}
-
 void Game_object::set_position(float x, float y) {
 	x_pos = x;
 	y_pos = y;
@@ -42,7 +38,6 @@ void Game_object::set_position(float x, float y) {
 
 void Game_object::set_texture(Texture& texture) {
 	sprite.setTexture(texture);
-	//sprite.setScale(0.75, 0.75);
 	float width = get_width();
 	float height = get_height();
 	sprite.setOrigin(width / 2.f, height / 2.f);
@@ -98,6 +93,10 @@ const float Game_object::get_height() {
 
 const Vector2f& Game_object::get_position() {
 	return sprite.getPosition();
+}
+
+const FloatRect& Game_object::get_global_bounds() {
+	return sprite.getGlobalBounds();
 }
 
 //Коллизии 

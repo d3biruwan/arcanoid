@@ -6,11 +6,6 @@ Block::Block(int pos) {
 	set_list_position(pos);
 }
 
-Block::Block(const vector <Color>& vec,int pos) {
-	set_colors_vec(vec);
-	set_list_position(pos);
-}
-
 Block::Block(bool destructible, int pos){
 	this->destructible = destructible;
 	set_list_position(pos);
@@ -29,16 +24,20 @@ void Block::lose_hp() {
 		on_death();
 		return;
 	}
-	set_color(colors->at(hp-1));
+	set_color(game->block_colors.at(hp-1));
 }
 
 void Block::on_death() {
-	for (Block& block : game->blocks) {
-		if (get_list_position() < block.get_list_position()) {
-			block.set_list_position(block.get_list_position() - 1);
+	for (auto& block : game->blocks) {
+		if (get_list_position() < block->get_list_position()) {
+			block->set_list_position(block->get_list_position() - 1);
 		}
 	}
-	auto iter = game->blocks.begin();
+
+	auto bonus = make_unique<Bonus_item>(*(this->game), this->game->bonus_texture, get_position().x, get_position().y, block_velocity);
+	game->bonuses.push_back(std::move(bonus));
+	
+	auto iter = game->blocks.cbegin();
 	for (int i = 0; i < get_list_position(); i++, ++iter);
 	auto temp_iter = iter++;
 	game->blocks.erase(temp_iter);	
@@ -50,9 +49,7 @@ void Block::make_accelerating(float acceleration, Texture& new_texture) {
 }
 
 //drawing
-void Block::set_colors_vec(const vector<Color>& vec) {
-	colors = &vec;
-}
+
 
 //properties
 const float Block::get_accelertaion() {
