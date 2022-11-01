@@ -1,4 +1,5 @@
 #include "Player.hpp"
+#include"Game.hpp"
 
 Player::Player(float velocity) {
 	this->velocity = velocity;
@@ -6,8 +7,8 @@ Player::Player(float velocity) {
 }
 
 void Player::set_position()  {
-	x_pos = window->getSize().x / 2;
-	y_pos = 0.9 * window->getSize().y;
+	x_pos = game->window->getSize().x / 2;
+	y_pos = 0.9 * game->window->getSize().y;
 	sprite.setPosition(x_pos, y_pos);
 }
 

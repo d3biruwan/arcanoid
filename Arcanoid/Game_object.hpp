@@ -8,7 +8,6 @@
 #include <vector>
 #include <list>
 #include <SFML/Graphics.hpp>
-//#include"Game.hpp"
 
 
 using namespace sf;
@@ -32,22 +31,26 @@ public:
 
 	// drawing 
 	void set_texture(Texture&);
-	void set_window(RenderWindow&);
 	virtual	void set_position(float, float);
 	void set_color(const Color&);
 	virtual void draw();
 	void change_opacity();
+	void set_velocity(float);
+	void increase_velocity(float);
+	void decrease_velocity(float);
 
 	// movement
 	virtual void update_state()=0;
 	void move();
 
 	//get properties
+	const float get_velocity();
 	const Color& get_color();
 	const int get_hp();
 	const float get_width();
 	const float get_height();
 	const Vector2f& get_position();
+	const FloatRect& get_global_bounds();
 
 protected:
 	enum screen_collision {
@@ -74,12 +77,9 @@ protected:
 	void set_angle(float);
 
 	Game* game=NULL;
-	RenderWindow* window = NULL;
 	float velocity=0.f;
 	float angle = 0.f;
 	int hp = 1;
 	float x_pos = 0.f, y_pos = 0.f;
 	Sprite sprite;
-
-	
 };

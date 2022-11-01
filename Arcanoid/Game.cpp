@@ -1,95 +1,116 @@
 #include"Game.hpp"
 
-Game::Game( RenderWindow& window) {
-    parent = &window;
+Game::Game( unique_ptr<RenderWindow> window) {
+    this->window = move(window);
 
-    player.set_window(window);
+    player->set_game(*this);
     player_texture.loadFromFile("player.png");
-    player.set_position();
-    player.set_texture(player_texture);
-    player.set_game(*this);
+    player->set_position();
+    player->set_texture(player_texture);
 
     block_texture.loadFromFile("block.png");
+    accelerating_block_texture.loadFromFile("speed_block.png");
     float offset_x = (float)(block_texture.getSize().x);
     float offset_y = (float)(block_texture.getSize().y);
 
-    //Block block = Block();
-    //block.set_window(window);
-    //block.set_position(window.getSize().x / 2.f + 40.f, window.getSize().y / 2.f + 50.f);
-    //block.set_texture(block_texture);
-    //blocks.push_back(block);
-
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < columns; j++) {
-            Block block = Block(i*columns+j);
-            block.set_blocks(blocks);
-            block.set_window(window);
-            block.set_position(border_x + offset_x * (j + 0.5f), border_y + offset_y * (i + 0.5f));
-            block.set_texture(block_texture);
-            block.set_game(*this);
-            //block.set
-            blocks.push_back(block);
+            auto block = make_unique<Block>(i*columns+j);
+            block->set_game(*this);
+            block->set_hp(3);
+            block->set_position(border_x + offset_x * (j + 0.5f), border_y + offset_y * (i + 0.5f));
+            block->set_texture(block_texture);
+            if (i == j) {
+                block->make_accelerating(block_acceleration,accelerating_block_texture);
+            }
+            blocks.push_back(move(block));
         }
     }
-    
-    ball.set_blocks(blocks);
-    ball.set_player(player);
-    ball.set_window(window);
-    ball_texture.loadFromFile("Ball.png");
-    ball.set_position();
-    ball.set_texture(ball_texture);
-    ball.set_game(*this);
+    auto ball = make_unique<Ball>(ball_velocity,*this);
+    ball_texture.loadFromFile("ball.png");
+    ball->set_position();
+    ball->set_texture(ball_texture);
+    balls.push_back(move(ball));
+
+    bonus_texture.loadFromFile("question.png");
 }
 
 
 void Game::draw() {
-    for (Block& block : blocks) {
-        block.draw();
+    for (auto& block : blocks) {
+        block->draw();
     }
-    ball.draw();
-    player.draw();
+    for (auto& ball : balls) {
+        ball->draw();
+    }
+    for (auto& bonus : bonuses) {
+        bonus->draw();
+    }
+    player->draw();
 }
 
 void Game::move_player(Keyboard::Key key) {
     switch (key){
     case Keyboard::Left:
-        player.move_left();
+        player->move_left();
         break;
     case Keyboard::Right:
-        player.move_right();
+        player->move_right();
     }
 }
 
 void Game::update_objects() {
-    player.update_state();
-    ball.update_state();
-    ball.move();
+    player->update_state();
+    for (auto& bonus : bonuses) {
+        if (bonus) {
+            bonus->update_state();
+        }
+        if (bonus) {
+            bonus->move();
+        }
+    }
+    for (auto& ball : balls) {
+        if (ball) {
+            ball->update_state();
+        }
+        if (ball) {
+            ball->move();
+        }
+    }
+}
+
+void Game::add_bonus() {
+    auto new_ball = make_unique<Ball>(ball_velocity, *this);
+    new_ball->set_position();
+    new_ball->set_texture(ball_texture);
+    balls.push_back(move(new_ball));
+    (balls.end()-1)->get()->flash_animation();
+    
 }
 
 int Game::run_game() {
-    RenderWindow window(VideoMode(800, 600), "SFML works!", Style::Default);
-    //window.setFramerateLimit(120);
-    Game game = Game(window);
-
-    while (window.isOpen())
+    auto window = make_unique<RenderWindow>(VideoMode(800, 600), "SFML works!", Style::Default);
+    auto game = make_unique<Game>(move(window));
+    //Game game = Game(move(window));
+    while (game->window->isOpen())
     {
         Event event;
-        while (window.pollEvent(event))
+        while (game->window->pollEvent(event))
         {
             if (event.type == Event::Closed) {
-                window.close();
+                game->window->close();
             }
         }
         if (Keyboard::isKeyPressed(Keyboard::Left)) {
-            game.move_player(Keyboard::Left);
+            game->move_player(Keyboard::Left);
         }
         if (Keyboard::isKeyPressed(Keyboard::Right)) {
-            game.move_player(Keyboard::Right);
+            game->move_player(Keyboard::Right);
         }
-        game.update_objects();
-        window.clear();
-        game.draw();
-        window.display();
+        game->update_objects();
+        game->window->clear();
+        game->draw();
+        game->window->display();
     }
 
     return 0;

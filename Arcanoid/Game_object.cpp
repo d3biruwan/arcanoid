@@ -1,10 +1,10 @@
 #include "Game_object.hpp"
+#include"Game.hpp"
 
 //lifespan
 Game_object::Game_object(float velocity, float angle) {
 	this->velocity = velocity;
 	set_angle(get_radian_angle(angle));
-	//this->angle = get_radian_angle(angle);
 }
 
 void Game_object::lose_hp() {
@@ -31,10 +31,6 @@ void Game_object::change_opacity() {
 	set_color(Color(color.r, color.g, color.b, color.a));
 }
 
-void Game_object:: set_window(RenderWindow& window) {
-	this->window = &window;
-}
-
 void Game_object::set_position(float x, float y) {
 	x_pos = x;
 	y_pos = y;
@@ -42,7 +38,6 @@ void Game_object::set_position(float x, float y) {
 
 void Game_object::set_texture(Texture& texture) {
 	sprite.setTexture(texture);
-	//sprite.setScale(0.75, 0.75);
 	float width = get_width();
 	float height = get_height();
 	sprite.setOrigin(width / 2.f, height / 2.f);
@@ -54,7 +49,19 @@ void Game_object::set_color(const Color& color) {
 }
 
 void Game_object::draw() {
-	window->draw(sprite);
+	game->window->draw(sprite);
+}
+
+void Game_object::set_velocity(float velocity) {
+	this->velocity = velocity;
+}
+
+void Game_object::increase_velocity(float inc) {
+	set_velocity(get_velocity() + inc);
+}
+
+void Game_object::decrease_velocity(float dec) {
+	increase_velocity(-dec);
 }
 
 //movement
@@ -64,6 +71,10 @@ void Game_object::move() {
 }
 
 //properties
+const float Game_object::get_velocity() {
+	return velocity;
+}
+
 const Color& Game_object::get_color() {
 	return sprite.getColor();
 }
@@ -84,6 +95,10 @@ const Vector2f& Game_object::get_position() {
 	return sprite.getPosition();
 }
 
+const FloatRect& Game_object::get_global_bounds() {
+	return sprite.getGlobalBounds();
+}
+
 //Коллизии 
 //Экран
 
@@ -92,29 +107,28 @@ Game_object::screen_collision Game_object::check_window_collision() {
 	float top_boundary = -get_height() / 2.f + get_position().y;
 	float right_boundary = get_width() / 2.f + get_position().x;
 	float bottom_boundary = get_height() / 2.f + get_position().y;
-
-	if (right_boundary >= window->getSize().x) {
-		if (bottom_boundary >= window->getSize().y) {
+	if (right_boundary >= game->window->getSize().x) {
+		if (bottom_boundary >= game->window->getSize().y) {
 			return screen_collision::bottom_right;
 		}
-		if (top_boundary <= 0.0) {
+		if (top_boundary <= 0.f) {
 			return screen_collision::top_right;
 		}
 		return screen_collision::right;
 	}
-	if (left_boundary <= 0) {
-		if (bottom_boundary >= window->getSize().y) {
+	if (left_boundary <= 0.f) {
+		if (bottom_boundary >= game->window->getSize().y) {
 			return screen_collision::bottom_left;
 		}
-		if (top_boundary <= 0) {
+		if (top_boundary <= 0.f) {
 			return screen_collision::top_left;
 		}
 		return screen_collision::left;
 	}
-	if (top_boundary <= 0) {
+	if (top_boundary <= 0.f) {
 		return screen_collision::top;
 	}
-	if (bottom_boundary >= window->getSize().y) {
+	if (bottom_boundary >= game->window->getSize().y) {
 		return screen_collision::bottom;
 	}
 	return screen_collision::no;
@@ -127,32 +141,20 @@ void Game_object::solve_window_collision(screen_collision state) {
 		return;
 	case top:
 		set_position(get_position().x,get_height()/2.f);
-		set_angle(2 * M_PI - angle);
-		//angle = 2 * M_PI - angle;
+		set_angle(2.f * M_PI - angle);
 		break;
 	case screen_collision::right:
-		set_position(window->getSize().x - get_width() / 2.f, get_position().y);
-		set_angle(3 * M_PI - angle);
-		//angle = 3 * M_PI - angle;
+		set_position(game->window->getSize().x - get_width() / 2.f, get_position().y);
+		set_angle(3.f * M_PI - angle);
 		break;
 	case screen_collision::bottom:
-		set_position(get_position().x, window->getSize().y-get_height() / 2.f);
-		set_angle(2 * M_PI - angle);
-		//angle = 2 * M_PI - angle;
+		set_position(get_position().x, game->window->getSize().y-get_height() / 2.f);
+		set_angle(2.f * M_PI - angle);
 		break;
 	case screen_collision::left:
 		set_position(get_width() / 2.f, get_position().y);
-		set_angle(3 * M_PI - angle);
-		//angle = 3 * M_PI - angle;
+		set_angle(3.f * M_PI - angle);
 		break;
-		/*case screen_collision::top_right:
-			break;
-		case screen_collision::bottom_right:
-			break;
-		case screen_collision::bottom_left:
-			break;
-		case screen_collision::top_left:
-			break;*/
 	default:
 		angle = M_PI + angle;
 		break;
