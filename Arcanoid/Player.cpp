@@ -3,7 +3,7 @@
 
 Player::Player(float velocity) {
 	this->velocity = velocity;
-	hp = 3;
+	hp = player_hp;
 }
 
 void Player::set_position()  {

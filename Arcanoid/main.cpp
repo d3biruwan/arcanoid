@@ -7,5 +7,9 @@ using namespace std;
 
 int main()
 {
-    Game::run_game();
+    int run = 1;
+    while (run == 1) {
+        run=Game::run_game();
+    }
+    return 0;
 }

@@ -33,6 +33,7 @@ void Ball::on_death() {
 		game->balls.erase(game->balls.cbegin() + get_list_position());
 		return;
 	}
+	game->player->lose_hp();
 	flash_animation();
 	set_hp(1);
 	clear_boosts();
@@ -89,7 +90,11 @@ void Ball::update_state() {
 	//player_collision
 	solve_player_collision(check_player_collision());
 	//blocks collision
-	solve_blocks_collision(check_block_collision());
+	solve_blocks_collision(check_block_collision(game->blocks));
+	//moving blocks collsioin
+	solve_blocks_collision(check_block_collision(game->moving_blocks));
+	//other balls
+	solve_balls_collsion(check_balls_collision());
 	//screen collision
 	solve_window_collision(window_collision_state);
 }
@@ -107,7 +112,7 @@ void Ball::solve_window_collision(screen_collision state) {
 		return;
 	}
 	if ((state == screen_collision::bottom) || (state == screen_collision::bottom_left) || (state == screen_collision::bottom_right)) {
-		game->player->lose_hp();
+		
 		lose_hp();
 	}
 	reset_collision();
@@ -120,7 +125,7 @@ bool Ball::check_player_collision() {
 	float radius = this->get_height()/2.f;
 	Vector2f ball_position = this->get_position();
 
-	if (ball_position.y + radius >= player_position.y - player_height/2.f) {
+	if ((ball_position.y + radius >= player_position.y - player_height/2.f)&&(ball_position.y < player_position.y)) {
 		if ((ball_position.x >= player_position.x - player_width/2.f) && (ball_position.x <= player_position.x + player_width/2.f)){
 			return true;
 		}
@@ -140,7 +145,8 @@ void Ball::solve_player_collision(bool player_collision_state) {
 	reset_collision();
 }
 
-Ball::rectangle_collision Ball::check_block_collision()
+template<typename T>
+Ball::rectangle_collision Ball::check_block_collision(vector<T>& blocks)
 {
 	float left_boundary = -get_width() / 2.f + get_position().x;
 	float top_boundary = -get_height() / 2.f + get_position().y;
@@ -148,7 +154,7 @@ Ball::rectangle_collision Ball::check_block_collision()
 	float bottom_boundary = get_height() / 2.f + get_position().y;
 
 
-	for (auto& block : game->blocks) {
+	for (auto& block : blocks) {
 		float block_left_boundary = -block->get_width() / 2.f + block->get_position().x;
 		float block_top_boundary = -block->get_height() / 2.f + block->get_position().y;
 		float block_right_boundary = block->get_width() / 2.f + block->get_position().x;
@@ -252,6 +258,7 @@ void Ball::solve_blocks_collision(rectangle_collision state) {
 	default:
 		break;
 	}
+	//game->add_bonus();
 	set_last_collison(state);
 	float acceleration = collision_block->get_accelertaion();
 	if (acceleration) {
@@ -259,6 +266,29 @@ void Ball::solve_blocks_collision(rectangle_collision state) {
 	}
 	collision_block->lose_hp();
 	collision_block = NULL;
+}
+
+bool Ball::check_balls_collision() {
+	for (auto& ball : game->balls) {
+		if (ball->get_list_position() <= get_list_position()) {
+			continue;
+		}
+		float collision_range = ball->get_width()/2.f + get_width()/2.f;
+		if (get_distance_from_point(ball->get_position()) <= collision_range) {
+			collision_ball = ball.get();
+			return true;
+		}
+	}
+	return false;
+}
+
+void Ball::solve_balls_collsion(bool state) {
+	if (state == false) {
+		return;
+	}
+	set_angle( - get_angle());
+	collision_ball->set_angle( - collision_ball->get_angle());
+	collision_ball = NULL;
 }
 
 void Ball::reset_collision() {

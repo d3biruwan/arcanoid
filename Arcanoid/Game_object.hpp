@@ -2,6 +2,7 @@
 
 #define _USE_MATH_DEFINES
 
+#include <random>
 #include <iostream>
 #include <cmath>	
 #include <ctime>
@@ -17,6 +18,7 @@ float distance_between(float, float, float, float);
 float distance_between(const Vector2f&, const Vector2f&);
 
 class Game;
+
 
 class Game_object {
 public:
@@ -42,8 +44,10 @@ public:
 	// movement
 	virtual void update_state()=0;
 	void move();
+	void move(const float, const float);
 
 	//get properties
+	const float get_angle();
 	const float get_velocity();
 	const Color& get_color();
 	const int get_hp();
@@ -51,6 +55,9 @@ public:
 	const float get_height();
 	const Vector2f& get_position();
 	const FloatRect& get_global_bounds();
+
+	//changing properties
+	void set_angle(float);
 
 protected:
 	enum screen_collision {
@@ -73,8 +80,7 @@ protected:
 	float get_distance_from_point(const Vector2f&);
 	float get_distance_from_point(float , float);
 
-	//changing properties
-	void set_angle(float);
+	
 
 	Game* game=NULL;
 	float velocity=0.f;
