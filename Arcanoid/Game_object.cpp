@@ -34,6 +34,7 @@ void Game_object::change_opacity() {
 void Game_object::set_position(float x, float y) {
 	x_pos = x;
 	y_pos = y;
+	sprite.setPosition(x_pos, y_pos);
 }
 
 void Game_object::set_texture(Texture& texture) {
@@ -67,10 +68,22 @@ void Game_object::decrease_velocity(float dec) {
 //movement
 
 void Game_object::move() {
-	sprite.move(cos(angle) * velocity, sin(angle) * velocity);
+	/*sprite.move(cos(angle) * velocity, sin(angle) * velocity);
+	set_position(x_pos + cos(angle) * velocity, y_pos + sin(angle) * velocity);*/
+	move(cos(angle) * velocity, sin(angle) * velocity);
+}
+
+void Game_object::move(const float x, const float y) {
+	sprite.move(x, y);
+	//set_position(x_pos + x, y_pos + y);
 }
 
 //properties
+const float Game_object::get_angle() {
+	return angle;
+}
+
+
 const float Game_object::get_velocity() {
 	return velocity;
 }
